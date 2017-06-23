@@ -123,12 +123,8 @@ function initMap() {
             console.log("clicked a markr");
             $("#icon-info").text("Info of this marker");
             $("#icon-info").css("font-size", "20px");
-
-
         });
-
         markers.push(newmarker);
-
     });
 
 if (legend_created === false) {
@@ -145,11 +141,9 @@ legend = document.getElementById("legend");
 
     map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(legend);
 
-
     legend_created = true;
 
     }
-
 
 }
 
@@ -169,7 +163,6 @@ $(document).ready(function() {
 
    map.setZoom(13);
 
-
    var card = document.getElementById('pac-card');
    var input = document.getElementById('pac-input');
    var types = document.getElementById('type-selector');
@@ -184,7 +177,7 @@ $(document).ready(function() {
  // so that the autocomplete requests use the current map bounds for the
  // bounds option in the request
 
- autocomplete.bindTo('bounds', map);
+autocomplete.bindTo('bounds', map);
 
 
 var infowindow = new google.maps.InfoWindow();
@@ -277,9 +270,22 @@ autocomplete.addListener('place_changed', function() {
         });
 
         newmarker.addListener('click', function() {
-            console.log("clicked a markr");
-            $("#icon-info").text("Info of this marker");
-            $("#icon-info").css("font-size", "20px");
+            // console.log("clicked a markr");
+            var bizName = $('#busName');
+            // console.log(bizName);
+            var bizAddress = $('#busAddress');
+            var bizPhone = $('#busPhone');
+            var bizWebsite = $('#busWebsite');
+            var bizNameDisplay = bizName[0].innerHTML;
+            var bizAddressDisplay = bizAddress[0].innerHTML;
+            var bizPhoneDisplay = bizPhone[0].innerHTML;
+            var bizWebsiteDisplay = bizWebsite[0].innerHTML;
+            console.log(bizWebsite);
+            $("#icon-info").text(bizNameDisplay);
+            $("#icon-info").append("<br>" + "Address: " + bizAddressDisplay);
+            $("#icon-info").append("<br>" + "Phone: " + bizPhoneDisplay);
+            // $("#icon-info").append("<br>" + "Website " + bizWebsiteDisplay);
+            $("#icon-info").css("font-size", "15px");
         });
 
         markers.push(newmarker);
@@ -351,7 +357,7 @@ autocomplete.addListener('place_changed', function() {
 
   function displayData(response) {
 
-    console.log("setVisible");
+    // console.log("setVisible");
     marker.setVisible(false);
 
     locations_lat = [];
@@ -379,7 +385,7 @@ autocomplete.addListener('place_changed', function() {
           locations_lat.push(geoCode_lat);
           locations_lng.push(geoCode_lng);
       var result = $("<p>")
-        .html("<u>" + name + "</u>" + "<br>" + "<strong>" + "Address: " + "</strong>" + address + "<br>" + "<strong>" + "Phone: " + "</strong>" + phone + "<br>" + "<strong>" + "<a href=" + resultUrl + ">" + "Website" + "</a>")
+        .html("<u id='busName'>" + name + "</u>" + "<br>" + "<strong>" + "Address: " + "</strong>" + "<u id='busAddress'>" + address + "</u>" + "<br>" + "<strong>" + "Phone: " + "</strong>" + "<u id='busPhone'>" + phone + "</u>" + "<br>" + "<strong>" + "<a href=" + "<u id='busWebsite'" + resultUrl +"</u>" + ">" + "Website" + "</a>")
         .appendTo($("#displayAPI"));
       };
       redoMap();
@@ -461,7 +467,7 @@ autocomplete.addListener('place_changed', function() {
         petDiv.id = "carousel-image";
         // petDiv.className += "item";
         petDiv.className = "item item" + i;
-        var adoptable = pet[i].media.photos.photo[0];
+        var adoptable = pet[i].media.photos.photo[3];
         var petImg =  $('<img>')
         .attr('src', adoptable.$t)
         .addClass('img-carousel')
