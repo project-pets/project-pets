@@ -15,8 +15,8 @@ var merchant = {};
 function initMap() {
     map = new google.maps.Map(document.getElementById('map'), {
         center: {
-            lat: 57.598493,
-            lng: -101.825397,
+            lat: 49.2827,
+            lng: -123.1207,
 
         },
         zoom: 12

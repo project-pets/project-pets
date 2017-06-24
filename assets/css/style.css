@@ -15,12 +15,12 @@
   position: absolute;
   width: 100%;
   font-size: 60px;
-  font-family: ‘Luckiest Guy’, cursive;
-  color: red;
+  font-family: arial;
+  color: white;
 }
 
 .navbar-inverse {
-  height: 240px;
+  height: 100px;
 }
 
 #map {
