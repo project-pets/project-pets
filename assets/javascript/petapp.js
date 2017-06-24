@@ -280,14 +280,14 @@ autocomplete.addListener('place_changed', function() {
             resultUrl: business[i].resultUrl,
             map: map
           });
-
         newmarker.addListener('click', function() {
-            var show = $('<div id="showBiz">')
-            .append(this.name)
-            .append("<br>" + "Address: " + this.address)
-            .append("<br>" + "Phone: " + this.phone)
-            .append("<br>" + "<a target='_blank' href=" + this.resultUrl + ">" + "Webpage" + "</a>")
-            $('#icon-info').prepend(show);
+            var merchants = {
+              name: this.name,
+              address: this.address,
+              phone: this.phone,
+              webpage: this.resultUrl
+            }
+            database.ref('merchants').push(merchants);
         });
 
         markers.push(newmarker);
@@ -305,9 +305,9 @@ autocomplete.addListener('place_changed', function() {
     storageBucket: "hacker-tails.appspot.com",
     messagingSenderId: "519408053795"
   };
-    firebase.initializeApp(config);
+  firebase.initializeApp(config);
     // setting variables
-    var database = firebase.database();
+  var database = firebase.database();
 
   // this retrieves business data
   function getBizData() {
@@ -390,7 +390,7 @@ autocomplete.addListener('place_changed', function() {
       merchant = {
         name: name,
         address: address,
-        resultURL: resultUrl,
+        resultUrl: resultUrl,
         phone: phone,
         geoCode_lat: geoCode_lat,
         geoCode_lng: geoCode_lng
@@ -469,21 +469,40 @@ autocomplete.addListener('place_changed', function() {
 
   function adoptPet() {
     var animal = $('#animal-select').val();
-    $.getJSON('http://api.petfinder.com/pet.find?format=json&animal='+animal+'&location=94112&key=1606f36e9c6ff9a9664c529cba6adff6&callback=?', function(result) {
+    var zipCode = $('#pac-input').val();
+    $.getJSON('http://api.petfinder.com/pet.find?format=json&animal='+animal+'&location='+zipCode+'&key=1606f36e9c6ff9a9664c529cba6adff6&callback=?', function(result) {
+      // console.log(result.petfinder.pets.pet[0].id);
       // console.log(result.petfinder.pets.pet[0].media.photos.photo[3]);
       var pet = result.petfinder.pets.pet;
+      var petID = pet[0].id;
       for (var i = 0; i < pet.length; i++) {
         var petDiv = $('<div id="carousel-image">')
         .addClass('item item' + i)
         var adoptable = pet[i].media.photos.photo[3];
         var petImg =  $('<img>')
         .attr('src', adoptable.$t)
+        .attr('data-id', petID.$t)
         .addClass('img-carousel')
+        .addClass('draggable')
         .addClass('center-block');
         $(petDiv).append(petImg);
         $('.carousel-inner').append(petDiv);
       }
     });
   }
-
+  function displayShow() {
+    database.ref('merchants').on('child_added', function(snapshot){
+      var merchant = snapshot.val();
+      $('#icon-info').prepend(merchant);
+       var show = $('<div id="showBiz">')
+            .append(merchant.name)
+            .append("<br>" + "Address: " + merchant.address)
+            .append("<br>" + "Phone: " + merchant.phone)
+            .append("<br>" + "<a target='_blank' href=" + merchant.resultUrl + ">" + "Webpage" + "</a>");
+      $('#icon-info').prepend(show);
+    }, function(errorObject) {
+      console.log('read failed: ' + errorObject);
+    })
+  }
+  displayShow();
 });
