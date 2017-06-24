@@ -269,6 +269,8 @@ autocomplete.addListener('place_changed', function() {
      //        icon: icons[feature.type].icon,
      //        map: map
      //    });
+
+        // attaching name, icon, address, etc to each marker
         for (var i = 0; i < 5; i++){
           var position = new google.maps.LatLng(business[i].geoCode_lat, business[i].geoCode_lng)
           var newmarker = new google.maps.Marker({
@@ -280,6 +282,8 @@ autocomplete.addListener('place_changed', function() {
             resultUrl: business[i].resultUrl,
             map: map
           });
+
+        // on click listener to grab merchants info, saving 'clicked' marker into firebase
         newmarker.addListener('click', function() {
             var merchants = {
               name: this.name,
@@ -296,7 +300,7 @@ autocomplete.addListener('place_changed', function() {
  };
 // end of redo map
 
-
+  // setting firebase configurations
   var config = {
     apiKey: "AIzaSyBDtNjucWDga7GKDVepB2m7n_JxXP31ASo",
     authDomain: "hacker-tails.firebaseapp.com",
@@ -373,8 +377,8 @@ autocomplete.addListener('place_changed', function() {
     for (var i = 0; i < 5; i++) {
       getGiphy();
       var name = response.listings[i].name;
-      var address = response.listings[i].address.street
-        + response.listings[i].address.city
+      var address = response.listings[i].address.street + (" ")
+        + response.listings[i].address.city + (" ")
         + response.listings[i].address.pcode
         + response.listings[i].address.prov;
       var resultUrl = response.listings[i].merchantUrl;
@@ -386,7 +390,7 @@ autocomplete.addListener('place_changed', function() {
       var geoCode_lng = response.listings[i].geoCode.longitude;
           locations_lat.push(geoCode_lat);
           locations_lng.push(geoCode_lng);
-
+      // creating a merchant object for google maps
       merchant = {
         name: name,
         address: address,
@@ -395,21 +399,25 @@ autocomplete.addListener('place_changed', function() {
         geoCode_lat: geoCode_lat,
         geoCode_lng: geoCode_lng
         }
+      // pushing merchant object into business array
       business.push(merchant);
-      var result = $("<p>")
+
+      var result = $("<p id='businessInfo'>")
         .html("<u id='busName'>" + name + "</u>" + "<br>" + "<strong>" + "Address: " + "</strong>" + "<u id='busAddress'>" + address + "</u>" + "<br>" + "<strong>" + "Phone: " + "</strong>" + "<u id='busPhone'>" + phone + "</u>" + "<br>" + "<strong>" + "<a target='_blank' id='busWebsite' href=" + resultUrl + ">" + "Website" + "</a>")
         .appendTo($("#displayAPI"));
       };
       redoMap();
   };
-
+  // hard coding animals due to bad potential gif results
   var animal = ['pug', 'cat', 'bunny', 'hamster', 'bird', 'turtle', 'dog', 'horse'];
+  // shuffling the animal array
   function shuffleAnimal(animal) {
     var j = animal.length - 1;
     var k = Math.floor(Math.random() * (j + 1));
     return animal[k];
   }
 
+  // ajax call to giphy api, randomly passing in an animal search query
   function getGiphy() {
     $("#displayGif").empty();
     var queryURL = "https://api.giphy.com/v1/gifs/search?q=" + shuffleAnimal(animal) + "&limit=100&api_key=dc6zaTOxFJmzC";
@@ -419,6 +427,7 @@ autocomplete.addListener('place_changed', function() {
     }).done(function(response) {
       $('#displayGifs').prepend(JSON.stringify(response));
       var selectionDiv = $('<div id="selectionData">');
+      // randomly pulling gifs, so we dont always return the same gifs
       var i = Math.floor(Math.random() * 100);
       var gif = response.data[i].images.fixed_height.url;
       var displayGiffy = $('<img>')
@@ -430,29 +439,34 @@ autocomplete.addListener('place_changed', function() {
   }
 
   function alertModal(input) {
+    // setting modal to hidden status
     $('[data-modal-option]').hide();
+    // passes through the input to correctly pick the right modal
     $('.modal-' + input).show();
-
+    // shows the correct modal
     $('#myModal').show();
-
+    // sets the x button to close the modal, and closes the modal
     $('#myModal .close').on('click', function() {
       $('#myModal').hide();
     })
   };
 
   $('#submit-Info').on('click', function(event) {
+    // prevents page from refreshing
     event.preventDefault();
-
+    // grabs data from inputs
     var inputSelection = $('#selection-input').val();
     type_selected = $('#selection-input').val().replace(" ", "_");
     var inputAddress = $('#pac-input').val();
     var inputAnimal = $('#animal-select').val();
+    // checks to see if the selection address or animal inputs are empty, if they are will pass through all-inputs into the modal, displaying all-inputs modal and returns false so the parameters won't be saved/executed
     if (!inputSelection || !inputAddress || !inputAnimal) {
       alertModal('all-inputs');
       return false;
     };
-
+    // grabs input from form
     var inputDistance = $('#distance-input').val();
+    // Regex "regular expressions" checking to see if each input is an integer
     var numberRegex = /^\d+$/;
     if (!numberRegex.test(inputDistance)) {
       alertModal('number-inputs');
@@ -468,13 +482,15 @@ autocomplete.addListener('place_changed', function() {
   });
 
   function adoptPet() {
+    // setting variables to animal and location fields, using getJSON
     var animal = $('#animal-select').val();
-    var zipCode = $('#pac-input').val();
-    $.getJSON('http://api.petfinder.com/pet.find?format=json&animal='+animal+'&location='+zipCode+'&key=1606f36e9c6ff9a9664c529cba6adff6&callback=?', function(result) {
+    var targetCity = $('#pac-input').val();
+    $.getJSON('http://api.petfinder.com/pet.find?format=json&animal='+animal+'&location='+targetCity+'&key=1606f36e9c6ff9a9664c529cba6adff6&callback=?', function(result) {
       // console.log(result.petfinder.pets.pet[0].id);
       // console.log(result.petfinder.pets.pet[0].media.photos.photo[3]);
       var pet = result.petfinder.pets.pet;
       var petID = pet[0].id;
+      // looping through each pet and setting their images with classes, etc
       for (var i = 0; i < pet.length; i++) {
         var petDiv = $('<div id="carousel-image">')
         .addClass('item item' + i)
@@ -485,24 +501,30 @@ autocomplete.addListener('place_changed', function() {
         .addClass('img-carousel')
         .addClass('draggable')
         .addClass('center-block');
+        // appending the petImg(all the images itself) into the petDiv
         $(petDiv).append(petImg);
+        // displays each petDiv to the carousel-inner class
         $('.carousel-inner').append(petDiv);
       }
     });
   }
   function displayShow() {
+    // watching the 'merchants' database
     database.ref('merchants').on('child_added', function(snapshot){
       var merchant = snapshot.val();
-      $('#icon-info').prepend(merchant);
-       var show = $('<div id="showBiz">')
+      // $('#icon-info').prepend(merchant);
+        // setting show variable to its own div, then appending the snapshot info
+        var show = $('<div id="showBiz">')
             .append(merchant.name)
             .append("<br>" + "Address: " + merchant.address)
             .append("<br>" + "Phone: " + merchant.phone)
             .append("<br>" + "<a target='_blank' href=" + merchant.resultUrl + ">" + "Webpage" + "</a>");
+      // displaying the show to the #icon-info
       $('#icon-info').prepend(show);
     }, function(errorObject) {
       console.log('read failed: ' + errorObject);
     })
   }
+  // calling displayShow to show on the page
   displayShow();
 });
