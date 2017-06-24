@@ -488,7 +488,7 @@ autocomplete.addListener('place_changed', function() {
     // setting variables to animal and location fields, using getJSON
     var animal = $('#animal-select').val();
     var targetCity = $('#pac-input').val();
-    $.getJSON('http://api.petfinder.com/pet.find?format=json&animal='+animal+'&location='+targetCity+'&key=1606f36e9c6ff9a9664c529cba6adff6&callback=?', function(result) {
+    $.getJSON('https://api.petfinder.com/pet.find?format=json&animal='+animal+'&location='+targetCity+'&key=1606f36e9c6ff9a9664c529cba6adff6&callback=?', function(result) {
       // console.log(result.petfinder.pets.pet[0].id);
       // console.log(result.petfinder.pets.pet[0].media.photos.photo[3]);
       var pet = result.petfinder.pets.pet;
