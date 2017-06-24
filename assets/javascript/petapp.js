@@ -523,7 +523,8 @@ autocomplete.addListener('place_changed', function() {
             .append("<br>" + "Phone: " + merchant.phone)
             .append("<br>" + "<a target='_blank' href=" + merchant.resultUrl + ">" + "Webpage" + "</a>");
       // displaying the show to the #icon-info
-      $('#icon-info').prepend(show);
+      $('#icon-info').html(show);
+      $('#icon-info').css("font-size", "20px")
     }, function(errorObject) {
       console.log('read failed: ' + errorObject);
     })
