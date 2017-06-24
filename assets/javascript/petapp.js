@@ -9,6 +9,8 @@ var type_selected;
 var marker;
 var legend;
 var legend_created = false;
+var business = [];
+var merchant = {};
 
 function initMap() {
     map = new google.maps.Map(document.getElementById('map'), {
@@ -244,53 +246,53 @@ autocomplete.addListener('place_changed', function() {
          }
      };
 
-     var features = [{
-        position: new google.maps.LatLng(locations_lat[0], locations_lng[0]),
-        type: type_selected
-        },{
-        position: new google.maps.LatLng(locations_lat[1], locations_lng[1]),
-        type: type_selected
-        }, {
-        position: new google.maps.LatLng(locations_lat[2], locations_lng[2]),
-        type: type_selected
-        },{
-        position: new google.maps.LatLng(locations_lat[3], locations_lng[3]),
-        type: type_selected
-        },{
-        position: new google.maps.LatLng(locations_lat[4], locations_lng[4]),
-        type: type_selected
-        }];
+     // var features = [{
+     //    position: new google.maps.LatLng(business[0].geoCode_lat, business[0].geoCode_lng),
+     //    type: type_selected
+     //    },{
+     //    position: new google.maps.LatLng(business[1].geoCode_lat, business[1].geoCode_lng),
+     //    type: type_selected
+     //    }, {
+     //    position: new google.maps.LatLng(business[2].geoCode_lat, business[2].geoCode_lng),
+     //    type: type_selected
+     //    },{
+     //    position: new google.maps.LatLng(business[3].geoCode_lat, business[3].geoCode_lng),
+     //    type: type_selected
+     //    },{
+     //    position: new google.maps.LatLng(business[4].geoCode_lat, business[4].geoCode_lng),
+     //    type: type_selected
+     //    }];
 
-        features.forEach(function(feature) {
-        var newmarker = new google.maps.Marker({
-            position: feature.position,
-            icon: icons[feature.type].icon,
+     //    features.forEach(function(feature) {
+     //    var newmarker = new google.maps.Marker({
+     //        position: feature.position,
+     //        icon: icons[feature.type].icon,
+     //        map: map
+     //    });
+        for (var i = 0; i < 5; i++){
+          var position = new google.maps.LatLng(business[i].geoCode_lat, business[i].geoCode_lng)
+          var newmarker = new google.maps.Marker({
+            position: position,
+            icon: icons[type_selected].icon,
+            name: business[i].name,
+            address: business[i].address,
+            phone: business[i].phone,
+            resultUrl: business[i].resultUrl,
             map: map
-
-        });
+          });
 
         newmarker.addListener('click', function() {
-            // console.log("clicked a markr");
-            var bizName = $('#busName');
-            // console.log(bizName);
-            var bizAddress = $('#busAddress');
-            var bizPhone = $('#busPhone');
-            var bizWebsite = $('#busWebsite');
-            var bizNameDisplay = bizName[0].innerHTML;
-            var bizAddressDisplay = bizAddress[0].innerHTML;
-            var bizPhoneDisplay = bizPhone[0].innerHTML;
-            var bizWebsiteDisplay = bizWebsite[0].innerHTML;
-            console.log(bizWebsite);
-            $("#icon-info").text(bizNameDisplay);
-            $("#icon-info").append("<br>" + "Address: " + bizAddressDisplay);
-            $("#icon-info").append("<br>" + "Phone: " + bizPhoneDisplay);
-            // $("#icon-info").append("<br>" + "Website " + bizWebsiteDisplay);
-            $("#icon-info").css("font-size", "15px");
+            var show = $('<div id="showBiz">')
+            .append(this.name)
+            .append("<br>" + "Address: " + this.address)
+            .append("<br>" + "Phone: " + this.phone)
+            .append("<br>" + "<a target='_blank' href=" + this.resultUrl + ">" + "Webpage" + "</a>")
+            $('#icon-info').prepend(show);
         });
 
         markers.push(newmarker);
 
-    });
+    };
  };
 // end of redo map
 
@@ -346,7 +348,7 @@ autocomplete.addListener('place_changed', function() {
           // If the user passed a callback, and it
           // is a function, call it, and send through the data var.
           if (typeof callback === 'function') {
-              console.log("madeIt");
+              // console.log("madeIt");
               callback(data.query.results.json);
           }
         }
@@ -384,8 +386,18 @@ autocomplete.addListener('place_changed', function() {
       var geoCode_lng = response.listings[i].geoCode.longitude;
           locations_lat.push(geoCode_lat);
           locations_lng.push(geoCode_lng);
+
+      merchant = {
+        name: name,
+        address: address,
+        resultURL: resultUrl,
+        phone: phone,
+        geoCode_lat: geoCode_lat,
+        geoCode_lng: geoCode_lng
+        }
+      business.push(merchant);
       var result = $("<p>")
-        .html("<u id='busName'>" + name + "</u>" + "<br>" + "<strong>" + "Address: " + "</strong>" + "<u id='busAddress'>" + address + "</u>" + "<br>" + "<strong>" + "Phone: " + "</strong>" + "<u id='busPhone'>" + phone + "</u>" + "<br>" + "<strong>" + "<a href=" + "<u id='busWebsite'" + resultUrl +"</u>" + ">" + "Website" + "</a>")
+        .html("<u id='busName'>" + name + "</u>" + "<br>" + "<strong>" + "Address: " + "</strong>" + "<u id='busAddress'>" + address + "</u>" + "<br>" + "<strong>" + "Phone: " + "</strong>" + "<u id='busPhone'>" + phone + "</u>" + "<br>" + "<strong>" + "<a target='_blank' id='busWebsite' href=" + resultUrl + ">" + "Website" + "</a>")
         .appendTo($("#displayAPI"));
       };
       redoMap();
@@ -461,12 +473,8 @@ autocomplete.addListener('place_changed', function() {
       // console.log(result.petfinder.pets.pet[0].media.photos.photo[3]);
       var pet = result.petfinder.pets.pet;
       for (var i = 0; i < pet.length; i++) {
-        // $('#pet-view').prepend(JSON.stringify(result));
-        // console.log(pet[0]);
-        var petDiv = document.createElement('div');
-        petDiv.id = "carousel-image";
-        // petDiv.className += "item";
-        petDiv.className = "item item" + i;
+        var petDiv = $('<div id="carousel-image">')
+        .addClass('item item' + i)
         var adoptable = pet[i].media.photos.photo[3];
         var petImg =  $('<img>')
         .attr('src', adoptable.$t)
